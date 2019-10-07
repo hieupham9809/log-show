@@ -17,6 +17,7 @@ package com.example.logshowjava.view;
  */
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -135,6 +136,86 @@ public class ViewDragHelper {
 
     private final ViewGroup mParentView;
 
+
+
+    public float getdX(MotionEvent ev){
+        final int action = ev.getAction();
+        final int actionIndex = ev.getActionIndex();
+        if (action == MotionEvent.ACTION_MOVE){
+            final int pointerCount = ev.getPointerCount();
+
+            for (int i = 0; i < pointerCount && mInitialMotionX != null && mInitialMotionY != null; i++) {
+                final int pointerId = ev.getPointerId(i);
+                if (pointerId >= mInitialMotionX.length || pointerId >= mInitialMotionY.length) {
+                    continue;
+                }
+                final float x = ev.getX(i);
+                final float y = ev.getY(i);
+                final float dx = x - mInitialMotionX[pointerId];
+                final float dy = y - mInitialMotionY[pointerId];
+
+                return dx;
+//                return x;
+            }
+        }
+        return 0;
+    }
+    public float getX(MotionEvent ev){
+
+            final int pointerCount = ev.getPointerCount();
+
+
+            for (int i = 0; i < pointerCount && mInitialMotionX != null && mInitialMotionY != null; i++) {
+                final int pointerId = ev.getPointerId(i);
+                if (pointerId >= mInitialMotionX.length || pointerId >= mInitialMotionY.length) {
+                    continue;
+                }
+                final float x = ev.getX(i);
+
+                return x;
+            }
+            return 0;
+//        }
+//        return 0;
+    }
+    public float getdY(MotionEvent ev){
+        final int action = ev.getAction();
+        final int actionIndex = ev.getActionIndex();
+        if (action == MotionEvent.ACTION_MOVE){
+            final int pointerCount = ev.getPointerCount();
+
+            for (int i = 0; i < pointerCount && mInitialMotionX != null && mInitialMotionY != null; i++) {
+                final int pointerId = ev.getPointerId(i);
+                if (pointerId >= mInitialMotionX.length || pointerId >= mInitialMotionY.length) {
+                    continue;
+                }
+                final float y = ev.getY(i);
+                final float dy = y - mInitialMotionY[pointerId];
+
+                return dy;
+//                return y;
+            }
+        }
+        return 0;
+    }
+    public float getY(MotionEvent ev){
+
+//        if (action == MotionEvent.ACTION_MOVE){
+        final int pointerCount = ev.getPointerCount();
+
+        for (int i = 0; i < pointerCount && mInitialMotionX != null && mInitialMotionY != null; i++) {
+            final int pointerId = ev.getPointerId(i);
+            if (pointerId >= mInitialMotionX.length || pointerId >= mInitialMotionY.length) {
+                continue;
+            }
+            final float y = ev.getY(i);
+
+            return y;
+        }
+        return 0;
+//        }
+//        return 0;
+    }
     /**
      * A Callback is used as a communication channel with the ViewDragHelper back to the
      * parent view using it. <code>on*</code>methods are invoked on siginficant events and several
@@ -994,6 +1075,8 @@ public class ViewDragHelper {
             case MotionEvent.ACTION_DOWN: {
                 final float x = ev.getX();
                 final float y = ev.getY();
+
+
                 final int pointerId = ev.getPointerId(0);
                 saveInitialMotion(x, y, pointerId);
 
@@ -1044,8 +1127,11 @@ public class ViewDragHelper {
                     }
                     final float x = ev.getX(i);
                     final float y = ev.getY(i);
+
                     final float dx = x - mInitialMotionX[pointerId];
                     final float dy = y - mInitialMotionY[pointerId];
+
+                    Log.d("ZINGLOGSHOW", "save last motion " + dy);
 
                     reportNewEdgeDrags(dx, dy, pointerId);
                     if (mDragState == STATE_DRAGGING) {
@@ -1060,6 +1146,7 @@ public class ViewDragHelper {
                     }
                 }
                 saveLastMotion(ev);
+
                 break;
             }
 

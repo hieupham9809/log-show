@@ -1,6 +1,5 @@
 package com.example.logshowjava.fragment;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,8 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.Toast;
 
-import com.example.logshowjava.LogHelper;
+import com.example.logshowjava.utility.LogHelper;
 import com.example.logshowjava.R;
 import com.example.logshowjava.view.DragLayout;
 
@@ -27,6 +28,9 @@ public class WebviewFragment extends Fragment {
     private DragLayout dragLayout;
 
     private WebView webView;
+    private Button loadBtn;
+
+    private String logFilePath = null;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -69,24 +73,69 @@ public class WebviewFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_webview, container, false);
         dragLayout = view.findViewById(R.id.drag_layout);
         webView = view.findViewById(R.id.webview);
+        loadBtn = view.findViewById(R.id.load_btn);
 //        webView.getSettings().setUseWideViewPort(true);
 
+        webView.loadUrl("file://" + LogHelper.getLogsFile(getContext()).getAbsolutePath());
+        webView.scrollBy(0, webView.getContentHeight() * 5);
 
-        LogHelper.setWriteNewLogListener(new LogHelper.WriteNewLogListener() {
+        setWriteNewLogListener();
+
+
+        loadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onWriteNewLog(String path) {
-                Log.d("ZINGLOGSHOW", "WRITE  "+ path);
-                try {
-                    webView.loadUrl("file://"+path);
+            public void onClick(View v) {
+                if (LogHelper.hasListener()){
+                    Log.d("ZINGLOGSHOW", "unset listener");
+                    Toast.makeText(getContext(),"unset listener",Toast.LENGTH_SHORT);
+                    LogHelper.unSetWriteNewLogListener();
+                } else {
+                    if (logFilePath != null){
+                        Log.d("ZINGLOGSHOW", "log file available, load html "+logFilePath);
+                        Toast.makeText(getContext(),"log file available, load html",Toast.LENGTH_SHORT);
 
-                } catch (Exception e){
-                    Log.d("ZINGLOGSHOW", e.getMessage());
+                        webView.loadUrl("file://"+logFilePath);
+                        webView.scrollBy(0, webView.getContentHeight() * 5);
+
+                        setWriteNewLogListener();
+                    } else {
+                        Log.d("ZINGLOGSHOW", "log file null");
+                    }
                 }
             }
         });
         return view;
     }
 
+
+    private void setWriteNewLogListener(){
+        LogHelper.setWriteNewLogListener(new LogHelper.WriteNewLogListener() {
+            @Override
+            public void onWriteNewLog(String path) {
+                logFilePath = path;
+                Log.d("ZINGLOGSHOW", "content height "+ webView.getContentHeight());
+                try {
+                    webView.loadUrl("file://"+path);
+
+                    webView.scrollBy(0, webView.getContentHeight() * 5);
+//                    webView.scrollBy(0, 1);
+//                    webView.setWebViewClient(new WebViewClient() {
+//                        @Override
+//                        public void onPageFinished(WebView view, String url) {
+//                            Log.d("ZINGLOGSHOW", "view height"+view.getHeight());
+////                            h.postDelayed(scrollRunnable, 17L);
+//
+//                            //use the param "view", and call getContentHeight in scrollTo
+////                            view.scrollTo(0, 500);
+//                        }
+//                    });
+
+                } catch (Exception e){
+                    Log.d("ZINGLOGSHOW", e.getMessage());
+                }
+            }
+        });
+    }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {

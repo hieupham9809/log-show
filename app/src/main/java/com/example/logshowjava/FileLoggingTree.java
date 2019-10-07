@@ -3,6 +3,8 @@ package com.example.logshowjava;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.logshowjava.utility.LogHelper;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;

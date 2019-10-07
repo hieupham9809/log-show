@@ -1,4 +1,4 @@
-package com.example.logshowjava;
+package com.example.logshowjava.utility;
 
 import android.content.Context;
 import android.os.Environment;
@@ -71,5 +71,11 @@ public class LogHelper {
     public static void setWriteNewLogListener(WriteNewLogListener listener){
         Log.d("ZINGLOGSHOW", "set listener");
         mListener = listener;
+    }
+    public static void unSetWriteNewLogListener(){
+        mListener = null;
+    }
+    public static boolean hasListener(){
+        return mListener != null;
     }
 }
