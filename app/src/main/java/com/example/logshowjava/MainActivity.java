@@ -18,6 +18,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.logshowjava.parser.ZingTVHtmlParser;
 import com.example.logshowjava.service.FloatingLogViewService;
 import com.example.logshowjava.utility.LogHelper;
 
@@ -53,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         button = findViewById(R.id.button);
 //        webView = findViewById(R.id.webview);
 
-        file = LogHelper.getLogsFile(getApplicationContext());
-
+//        file = LogHelper.getLogsFile(getApplicationContext());
+        file = new File("/storage/emulated/0/Android/data/com.example.logshowjava/files/Documents/showlog/20-09-2019.html");
 
         if (isExternalStorageAvailable()){
 
@@ -80,9 +81,10 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
                 } else {
 
+                    FloatingLogViewService.setHtmlParserAdapter(new ZingTVHtmlParser());
                     Intent intent = new Intent(MainActivity.this, FloatingLogViewService.class);
                     /* Send path, for example: /storage/emulated/0/Android/data/com.example.logshowjava/files/Documents/showlog/30-09-2019.html */
-                    intent.putExtra("path",LogHelper.getLogsFile(this).getAbsolutePath());
+                    intent.putExtra("path","/storage/emulated/0/Android/data/com.example.logshowjava/files/Documents/showlog/20-09-2019.html");
 
 
                     startService(intent);
@@ -103,15 +105,13 @@ public class MainActivity extends AppCompatActivity {
                             final FileWriter writer;
                             try {
                                 writer = new FileWriter(file, true);
-                                writer.append("<p priority=\"").append(String.valueOf(2))
-                                        .append("\" style=\"background:lightgray;overflow-wrap: break-word;\"><strong ").append("style=\"color:#145A32;\">&nbsp&nbsp")
+                                writer.append("<p priority=\"").append(String.valueOf(6))
+                                        .append("\" style=\"background:lightgray;\"><strong ").append("style=\"background:lightblue;\">&nbsp&nbsp")
                                         .append(logTimeStamp)
-                                        .append(" :&nbsp&nbsp</strong><strong style=\"color:").append(textColor).append(";\">&nbsp&nbsp")
+                                        .append(" :&nbsp&nbsp</strong><strong>&nbsp&nbsp")
                                         .append(tag)
                                         .append("</strong> - ")
-                                        .append("<span style=\"color:").append(textColor).append(";\">")
                                         .append(message)
-                                        .append("</span>")
                                         .append("</p>");
                                 writer.flush();
                                 writer.close();
@@ -148,7 +148,27 @@ public class MainActivity extends AppCompatActivity {
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Timber.e("Log time %d", counter);
+//                        Timber.e("Log time %d", counter);
+                        String logTimeStamp = new SimpleDateFormat("E MMM dd yyyy 'at' hh:mm:ss:SSS aaa",
+                                Locale.getDefault()).format(new Date());
+                        String tag = "TEST";
+                        String message = "test"+counter;
+                        try {
+                            FileWriter writer = new FileWriter(file, true);
+                            writer.append("<p priority=\"").append(String.valueOf(6))
+                                    .append("\" style=\"background:lightgray;\"><strong ").append("style=\"background:lightblue;\">&nbsp&nbsp")
+                                    .append(logTimeStamp)
+                                    .append(" :&nbsp&nbsp</strong><strong>&nbsp&nbsp")
+                                    .append(tag)
+                                    .append("</strong> - ")
+                                    .append(message)
+                                    .append("</p>");
+                            writer.flush();
+                            writer.close();
+                            counter++;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         counter++;
                     }
                 });

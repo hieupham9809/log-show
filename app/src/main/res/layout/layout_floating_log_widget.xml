@@ -17,15 +17,17 @@
             android:layout_width="wrap_content"
             android:visibility="visible"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+
+            android:background="@drawable/round_background"
+            >
 
             <!--Icon of floating widget -->
             <ImageView
                 android:id="@+id/collapsed_iv"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_android_circle"
+                android:src="@drawable/logicon"
                 />
 
             <!--Close button-->
@@ -43,19 +45,18 @@
             android:id="@+id/drag_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#d1d0ce"
+            android:padding="1dp"
+            android:background="@drawable/card_background"
+
             >
 
-            <TextView
-                android:id="@+id/tv"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:text="aaaaaaaaa\nbbbbbb"/>
+
             <LinearLayout
                 android:id="@+id/main_view"
                 android:layout_width="200dp"
                 android:layout_height="250dp"
                 android:gravity="bottom"
+
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:background="@color/colorPrimaryDark"
@@ -81,15 +82,31 @@
                 android:layout_height="50dp"
                 android:layout_gravity="right"
 
-
                 android:background="@color/colorPrimary"></View>
 
 
-            <WebView
-                android:id="@+id/webview"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                ></WebView>
+            <ScrollView
+                android:id="@+id/scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                >
+                <TextView
+                    android:id="@+id/tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:scrollbars="vertical"
+
+
+                    android:text="aaaaaaaaa\nbbbbbb"/>
+            </ScrollView>
+
+            <!--<WebView-->
+                <!--android:id="@+id/webview"-->
+                <!--android:layout_width="200dp"-->
+                <!--android:layout_height="200dp"-->
+                <!--&gt;</WebView>-->
 
         </com.example.logshowjava.view.DragLayout>
 

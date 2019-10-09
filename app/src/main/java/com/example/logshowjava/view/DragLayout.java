@@ -18,6 +18,7 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import com.example.logshowjava.R;
 public class DragLayout extends RelativeLayout {
     private LinearLayout mainView;
     private TextView tv;
+    private ScrollView scrollView;
     private View scaleZone;
     private WebView webView;
     private Context context;
@@ -64,6 +66,7 @@ public class DragLayout extends RelativeLayout {
 
         mainView = findViewById(R.id.main_view);
         scaleZone = findViewById(R.id.scale_zone);
+        scrollView = findViewById(R.id.scroll_view);
         tv = findViewById(R.id.tv);
         tv.setTextIsSelectable(true);
         tv.setOnLongClickListener(new View.OnLongClickListener(){
@@ -71,102 +74,33 @@ public class DragLayout extends RelativeLayout {
             public boolean onLongClick(View v){
                 int startIndex = tv.getSelectionStart();
                 int endIndex = tv.getSelectionEnd();
-                String copyText = tv.getText().toString().substring(startIndex, endIndex);
-                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", copyText);
-                clipboard.setPrimaryClip(clip);
+                if (startIndex > 0 && endIndex > 0) {
+                    String copyText = tv.getText().toString().substring(startIndex, endIndex);
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", copyText);
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(context, "Please select again", Toast.LENGTH_SHORT).show();
+
+                }
 
 
-                Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show();
-                Log.d("ZINGLOGSHOW", "Copied text");
+//                Log.d("ZINGLOGSHOW", "Copied text");
 
 
                 return true;
             }
         });
-        webView = findViewById(R.id.webview);
+//        webView = findViewById(R.id.webview);
 
 //        emulateShiftHeld(webView);
 
     }
-//    private void emulateShiftHeld(WebView view)
-//    {
-//        try
-//        {
-//            KeyEvent shiftPressEvent = new KeyEvent(0, 0, KeyEvent.ACTION_DOWN,
-//                    KeyEvent.KEYCODE_SHIFT_LEFT, 0, 0);
-//            shiftPressEvent.dispatch(view);
-////            Toast.makeText(this, "select_text_now", Toast.LENGTH_SHORT).show();
-//        }
-//        catch (Exception e)
-//        {
-//            Log.e("dd", "Exception in emulateShiftHeld()", e);
-//        }
-//    }
-//    public class ActionBarCallback implements ActionMode.Callback
-//    {
-//
-//        @Override
-//        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-//            mode.getMenuInflater().inflate(R.menu.contextual_menu, menu);
-//            Log.d("ZINGLOGSHOW", "onCreateActionMode");
-//
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-//            Log.d("ZINGLOGSHOW", "onCreateActionMode");
-//
-//            return false;
-//        }
-//
-//        @Override
-//        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-//
-//            int id = item.getItemId();
-//            if(id == R.id.item_delete)
-//            {
-//                tv.setText("");
-//
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        public void onDestroyActionMode(ActionMode mode) {
-//            Log.d("ZINGLOGSHOW", "onDestroyActionMode");
-//
-//
-//        }
-//    }
+
     public class DragHelperCallback extends ViewDragHelper.Callback {
-//        @Override
-//        public void onViewDragStateChanged(int state) {
-//            if (state == mDraggingState) { // no change
-//                return;
-//            }
-//            if (isMoving() &&
-//                    state == ViewDragHelper.STATE_IDLE) {
-//                // the view stopped from moving.
-//
-//                if (mDraggingBorder == 0) {
-//                    onStopDraggingToClosed();
-//                } else if (mDraggingBorder == mVerticalRange) {
-//                    mIsOpen = true;
-//                }
-//            }
-//            if (state == ViewDragHelper.STATE_DRAGGING) {
-//                onStartDragging();
-//            }
-//            mDraggingState = state;
-//        }
 
-
-
-//        public int getViewVerticalDragRange(View child) {
-//            return mVerticalRange;
-//        }
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
@@ -262,7 +196,7 @@ public class DragLayout extends RelativeLayout {
 
 //        mDragHelper.processTouchEvent(ev);
 
-        boolean isHit = isViewHit(webView, (int) ev.getX(), (int)ev.getY());
+        boolean isHit = isViewHit(scrollView, (int) ev.getX(), (int)ev.getY());
 
 //        Log.d("ZINGLOGSHOW","onTouch return " + isHit);
 
@@ -301,7 +235,7 @@ public class DragLayout extends RelativeLayout {
             );
 
 
-            tv.layout(
+            scrollView.layout(
                     mainView.getLeft(),
                     mainView.getBottom(),
                     mainView.getRight() + 100,
@@ -330,7 +264,7 @@ public class DragLayout extends RelativeLayout {
                     ((mainView.getRight() - 100 < mainView.getLeft()) && dx < 0)? mainView.getRight(): right - 100,
                     top + 100
             );
-            tv.layout(
+            scrollView.layout(
                     mainView.getLeft() ,
                     mainView.getBottom(),
                     right,
@@ -342,7 +276,7 @@ public class DragLayout extends RelativeLayout {
 
 
 
-        tv.layout(
+        scrollView.layout(
                 mainView.getLeft(),
                 mainView.getBottom(),
                 right,

@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.MovementMethod;
+import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -18,10 +20,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.logshowjava.R;
+import com.example.logshowjava.parser.BaseHtmlParser;
 import com.example.logshowjava.view.DragLayout;
 
 import java.io.File;
@@ -54,9 +58,16 @@ public class FloatingLogViewService extends Service {
     private boolean isWatching = true;
     private boolean isMoving = false;
     WindowManager.LayoutParams params;
+
+    private MovementMethod selectTextMM;
+    private static BaseHtmlParser htmlParser;
+
     public FloatingLogViewService() {
     }
 
+    public static void setHtmlParserAdapter(BaseHtmlParser newHtmlParser){
+        htmlParser = newHtmlParser;
+    }
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -86,7 +97,7 @@ public class FloatingLogViewService extends Service {
                 if (event == FileObserver.MODIFY){
                     Log.d("ZINGLOGSHOW", "Event Modify trigger: "+ event);
 
-                    if (!isViewCollapsed() && webView != null){
+                    if (!isViewCollapsed() && textView != null){
                         loadWebViewHandler.post(loadWebViewRunnable);
                         Log.d("ZINGLOGSHOW", "File changed, load again");
 
@@ -117,13 +128,25 @@ public class FloatingLogViewService extends Service {
                     while (fis.read(buffer) != -1) {
                     }
                     content += new String(buffer);
+                    if (htmlParser != null){
+                        content = htmlParser.read(content);
+                        Log.d("ZINGLOGSHOW", content);
+                    } else {
+                        Log.d("ZINGLOGSHOW", "html Parser null");
+
+                        throw new Exception("Need to implement and set HTML Parser");
+                    }
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                         textView.setText(Html.fromHtml(content,Html.FROM_HTML_MODE_LEGACY));
                     } else {
                         textView.setText(Html.fromHtml(content));
                     }
+                    textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
 
-                } catch (IOException e) {
+//                    textView.scrollTo(0, textView.getHeight() * 3);
+
+
+                } catch (Exception e) {
                     Log.d("ZINGLOGSHOW", "error reading file "+ e.getMessage());
 
                 }
@@ -281,8 +304,15 @@ public class FloatingLogViewService extends Service {
                                 //and expanded view will become visible.
                                 collapsedView.setVisibility(View.GONE);
                                 expandedView.setVisibility(View.VISIBLE);
-                                webView = mFloatingView.findViewById(R.id.webview);
+//                                webView = mFloatingView.findViewById(R.id.webview);
                                 textView = mFloatingView.findViewById(R.id.tv);
+
+                                if (selectTextMM == null) {
+                                    selectTextMM = textView.getMovementMethod();
+                                }
+                                textView.setMovementMethod(new ScrollingMovementMethod());
+                                textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
+
 
 //                                params.width = WindowManager.LayoutParams.WRAP_CONTENT;
 //                                params.height = WindowManager.LayoutParams.WRAP_CONTENT;
@@ -311,6 +341,7 @@ public class FloatingLogViewService extends Service {
                                     @Override
                                     public void onClick(View v) {
                                         if (isWatching){
+                                            textView.setMovementMethod(selectTextMM);
                                             Log.d("ZINGLOGSHOW", "unset listener");
                                             fileObserver.stopWatching();
                                             isWatching = false;
@@ -329,13 +360,25 @@ public class FloatingLogViewService extends Service {
                                                     while (fis.read(buffer) != -1) {
                                                     }
                                                     content += new String(buffer);
+                                                    if (htmlParser != null){
+                                                        content = htmlParser.read(content);
+                                                    } else {
+
+                                                        throw new Exception("Need to implement and set HTML Parser");
+                                                    }
+
+                                                    textView.setMovementMethod(new ScrollingMovementMethod());
                                                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                                                         textView.setText(Html.fromHtml(content,Html.FROM_HTML_MODE_LEGACY));
                                                     } else {
                                                         textView.setText(Html.fromHtml(content));
                                                     }
+                                                    textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
+//                                                    Log.d("ZINGLOGSHOW", "scrolled");
 
-                                                } catch (IOException e) {
+
+
+                                                } catch (Exception e) {
                                                     Log.d("ZINGLOGSHOW", "error reading file "+ e.getMessage());
 
                                                 }
