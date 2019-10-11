@@ -1,6 +1,7 @@
 package com.example.logshowjava.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -17,11 +18,15 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.logshowjava.R;
@@ -39,7 +44,12 @@ public class FloatingLogViewService extends Service {
     private View mFloatingView;
 
     private WebView webView;
+    private LinearLayout tvWrapper;
     private TextView textView;
+    private ScrollView scrollView;
+
+    private EditText searchEditText;
+
     private Button loadBtn;
     private Handler loadWebViewHandler;
     private Runnable loadWebViewRunnable;
@@ -59,7 +69,8 @@ public class FloatingLogViewService extends Service {
     private boolean isMoving = false;
     WindowManager.LayoutParams params;
 
-    private MovementMethod selectTextMM;
+
+
     private static BaseHtmlParser htmlParser;
 
     public FloatingLogViewService() {
@@ -116,45 +127,7 @@ public class FloatingLogViewService extends Service {
         loadWebViewRunnable = new Runnable() {
             @Override
             public void run() {
-                FileInputStream fis;
-                String content = "";
-
-                try {
-                    fis = new FileInputStream(new File(path));
-
-                    int size = fis.available();
-
-                    byte[] buffer = new byte[size];
-                    while (fis.read(buffer) != -1) {
-                    }
-                    content += new String(buffer);
-                    if (htmlParser != null){
-                        content = htmlParser.read(content);
-                        Log.d("ZINGLOGSHOW", content);
-                    } else {
-                        Log.d("ZINGLOGSHOW", "html Parser null");
-
-                        throw new Exception("Need to implement and set HTML Parser");
-                    }
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                        textView.setText(Html.fromHtml(content,Html.FROM_HTML_MODE_LEGACY));
-                    } else {
-                        textView.setText(Html.fromHtml(content));
-                    }
-                    textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
-
-//                    textView.scrollTo(0, textView.getHeight() * 3);
-
-
-                } catch (Exception e) {
-                    Log.d("ZINGLOGSHOW", "error reading file "+ e.getMessage());
-
-                }
-//                webView.loadUrl("file://" + path);
-//
-//                webView.scrollTo(0, webView.getContentHeight() * 3);
-//                Log.d("ZINGLOGSHOW", "load file");
-
+                loadLogToWindow();
             }
         };
         super.onCreate();
@@ -175,7 +148,7 @@ public class FloatingLogViewService extends Service {
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 TYPE_FLAG,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);
 
 
@@ -197,9 +170,15 @@ public class FloatingLogViewService extends Service {
         final DragLayout expandedView = mFloatingView.findViewById(R.id.drag_layout);
         expandedView.setVisibility(View.GONE);
 
+
+
         expandedView.setScaleWindowListener(new DragLayout.ScaleWindowListener() {
             @Override
             public void OnScale(int dx, int dy) {
+//                if (tvWrapper != null && (tvWrapper.getDescendantFocusability() != ViewGroup.FOCUS_BLOCK_DESCENDANTS)){
+//                    tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+//                    Log.d("ZINGLOGSHOW","tvWrapper " + (tvWrapper.getDescendantFocusability() == ViewGroup.FOCUS_BLOCK_DESCENDANTS));
+//                }
 
                 params.width += dx;
                 params.height -= dy;
@@ -208,6 +187,7 @@ public class FloatingLogViewService extends Service {
                 old_height = params.height;
 
                 mWindowManager.updateViewLayout(mFloatingView,params);
+//                tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
             }
         });
 
@@ -306,20 +286,29 @@ public class FloatingLogViewService extends Service {
                                 expandedView.setVisibility(View.VISIBLE);
 //                                webView = mFloatingView.findViewById(R.id.webview);
                                 textView = mFloatingView.findViewById(R.id.tv);
+                                scrollView = mFloatingView.findViewById(R.id.scroll_view);
+                                tvWrapper = mFloatingView.findViewById(R.id.tv_wrapper);
+                                searchEditText = mFloatingView.findViewById(R.id.search_et);
+                                InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                                im.showSoftInput(searchEditText, 0);
 
-                                if (selectTextMM == null) {
-                                    selectTextMM = textView.getMovementMethod();
+                                if (textView.getText().toString().equals("")){
+                                    loadLogToWindow();
+
+
+
+
                                 }
-                                textView.setMovementMethod(new ScrollingMovementMethod());
-                                textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
+
+//                                textView.setMovementMethod(scrollMM);
+//                                textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
 
 
 //                                params.width = WindowManager.LayoutParams.WRAP_CONTENT;
 //                                params.height = WindowManager.LayoutParams.WRAP_CONTENT;
                                 if (old_height == 0 || old_width == 0) {
-                                    Log.d("ZINGLOGSHOW", "w "+ params.width + "h "+ params.height);
 
-                                    params.width = 400;
+                                    params.width = 600;
                                     params.height = 450;
                                 } else {
                                     params.width = old_width;
@@ -341,7 +330,7 @@ public class FloatingLogViewService extends Service {
                                     @Override
                                     public void onClick(View v) {
                                         if (isWatching){
-                                            textView.setMovementMethod(selectTextMM);
+//                                            textView.setMovementMethod(selectTextMM);
                                             Log.d("ZINGLOGSHOW", "unset listener");
                                             fileObserver.stopWatching();
                                             isWatching = false;
@@ -349,39 +338,11 @@ public class FloatingLogViewService extends Service {
                                             if (!path.equals("")){
                                                 Log.d("ZINGLOGSHOW", "log file available, load html "+path);
 
-                                                FileInputStream fis;
-                                                String content = "";
+//                                                textView.setMovementMethod(scrollMM);
 
-                                                try {
-                                                    fis = new FileInputStream(new File(path));
-                                                    int size = fis.available();
+                                                loadLogToWindow();
+//                                                expandedView.setVisibility(View.VISIBLE);
 
-                                                    byte[] buffer = new byte[size];
-                                                    while (fis.read(buffer) != -1) {
-                                                    }
-                                                    content += new String(buffer);
-                                                    if (htmlParser != null){
-                                                        content = htmlParser.read(content);
-                                                    } else {
-
-                                                        throw new Exception("Need to implement and set HTML Parser");
-                                                    }
-
-                                                    textView.setMovementMethod(new ScrollingMovementMethod());
-                                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                                                        textView.setText(Html.fromHtml(content,Html.FROM_HTML_MODE_LEGACY));
-                                                    } else {
-                                                        textView.setText(Html.fromHtml(content));
-                                                    }
-                                                    textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
-//                                                    Log.d("ZINGLOGSHOW", "scrolled");
-
-
-
-                                                } catch (Exception e) {
-                                                    Log.d("ZINGLOGSHOW", "error reading file "+ e.getMessage());
-
-                                                }
 //                                                webView.loadUrl("file://" + path);
 //                                                webView.scrollTo(0, webView.getContentHeight() * 3);
 
@@ -408,12 +369,53 @@ public class FloatingLogViewService extends Service {
     }
 
 
-    public void changePosition(int dx, int dy){
-        params.x = params.x + dx;
-        params.y = params.y + dy;
+    public void loadLogToWindow(){
+        Log.d("ZINGLOGSHOW", "get Y "+ scrollView.getY());
 
-        mWindowManager.updateViewLayout(mFloatingView,params);
+        FileInputStream fis;
+        String content = "";
 
+        try {
+            fis = new FileInputStream(new File(path));
+
+            int size = fis.available();
+
+            byte[] buffer = new byte[size];
+            while (fis.read(buffer) != -1) {
+            }
+            content += new String(buffer);
+            if (htmlParser != null){
+                content = htmlParser.read(content);
+                Log.d("ZINGLOGSHOW", content);
+            } else {
+                Log.d("ZINGLOGSHOW", "html Parser null");
+
+                throw new Exception("Need to implement and set HTML Parser");
+            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                textView.setText(Html.fromHtml(content,Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                textView.setText(Html.fromHtml(content));
+            }
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollView.fullScroll(View.FOCUS_DOWN);
+                    tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+//                    Log.d("ZINGLOGSHOW", "current scroll Y " + scrollView.getScrollY());
+
+                }
+            });
+
+//            textView.scrollBy(0, textView.getLineCount() * textView.getLineHeight());
+
+//                    textView.scrollTo(0, textView.getHeight() * 3);
+
+
+        } catch (Exception e) {
+            Log.d("ZINGLOGSHOW", "error reading file "+ e.getMessage());
+
+        }
     }
     private boolean isViewCollapsed() {
         return mFloatingView == null || mFloatingView.findViewById(R.id.collapse_view).getVisibility() == View.VISIBLE;

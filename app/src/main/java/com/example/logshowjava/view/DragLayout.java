@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.WebChromeClient;
@@ -27,6 +28,7 @@ import com.example.logshowjava.R;
 
 public class DragLayout extends RelativeLayout {
     private LinearLayout mainView;
+    private LinearLayout tvWrapper;
     private TextView tv;
     private ScrollView scrollView;
     private View scaleZone;
@@ -42,6 +44,8 @@ public class DragLayout extends RelativeLayout {
 
     private float x_previous;
     private float y_previous;
+
+    private int currentScroll = 0;
 
     private ActionMode mActionMode;
     private ViewDragHelper mDragHelper;
@@ -67,6 +71,7 @@ public class DragLayout extends RelativeLayout {
         mainView = findViewById(R.id.main_view);
         scaleZone = findViewById(R.id.scale_zone);
         scrollView = findViewById(R.id.scroll_view);
+        tvWrapper = findViewById(R.id.tv_wrapper);
         tv = findViewById(R.id.tv);
         tv.setTextIsSelectable(true);
         tv.setOnLongClickListener(new View.OnLongClickListener(){
@@ -79,7 +84,7 @@ public class DragLayout extends RelativeLayout {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                     android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", copyText);
                     clipboard.setPrimaryClip(clip);
-                    Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Copied "+ copyText, Toast.LENGTH_SHORT).show();
 
                 } else {
                     Toast.makeText(context, "Please select again", Toast.LENGTH_SHORT).show();
@@ -154,6 +159,13 @@ public class DragLayout extends RelativeLayout {
     public boolean onTouchEvent(MotionEvent ev) {
         if (isViewHit(scaleZone, (int)ev.getX(), (int)ev.getY())) {
             isScaling = true;
+            if (scrollView.getScrollY() != 0) {
+                currentScroll = scrollView.getScrollY();
+            }
+//            Log.d("ZINGLOGSHOW", "Current Scroll "+ currentScroll);
+
+            tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
 //            mDragHelper.shouldInterceptTouchEvent(ev);
 
 //            if (dx != 0 || dy != 0){
@@ -161,8 +173,13 @@ public class DragLayout extends RelativeLayout {
 //            }
 //            return true;
         }
-        if (ev.getAction() == MotionEvent.ACTION_UP){
+
+
+        if (ev.getAction() == MotionEvent.ACTION_UP && isScaling){
             isScaling = false;
+            scrollView.scrollTo(0, currentScroll);
+//            Log.d("ZINGLOGSHOW", "Scroll to "+ currentScroll);
+
         }
         if (isScaling){
             if (ev.getAction() == MotionEvent.ACTION_DOWN){
@@ -212,6 +229,13 @@ public class DragLayout extends RelativeLayout {
             return false;
         }
 
+        if (isViewHit(scaleZone, (int)ev.getX(), (int)ev.getY())) {
+
+            tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
+        }else {
+            tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        }
         if (isViewHit(mainView, (int)ev.getX(), (int)ev.getY())) {
             return mDragHelper.shouldInterceptTouchEvent(ev);
         } else {
@@ -224,13 +248,12 @@ public class DragLayout extends RelativeLayout {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        Log.d("ZINGLOGSHOW", "x "+ x);
 
         if (isInitView){
             mainView.layout(
                     left,
                     top,
-                    left + 300,
+                    right - 100,
                     top + 100
             );
 
@@ -295,7 +318,6 @@ public class DragLayout extends RelativeLayout {
         return webView.getWidth();
     }
     public void setMainLayout(int left, int top){
-        Log.d("ZINGLOGSHOW", "left "+ left);
         mainView.layout(
                 left,
                 top,

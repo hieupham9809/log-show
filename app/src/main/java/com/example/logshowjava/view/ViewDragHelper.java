@@ -1131,7 +1131,6 @@ public class ViewDragHelper {
                     final float dx = x - mInitialMotionX[pointerId];
                     final float dy = y - mInitialMotionY[pointerId];
 
-                    Log.d("ZINGLOGSHOW", "save last motion " + dy);
 
                     reportNewEdgeDrags(dx, dy, pointerId);
                     if (mDragState == STATE_DRAGGING) {

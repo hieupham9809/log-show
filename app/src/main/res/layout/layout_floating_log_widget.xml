@@ -53,7 +53,7 @@
 
             <LinearLayout
                 android:id="@+id/main_view"
-                android:layout_width="200dp"
+                android:layout_width="400dp"
                 android:layout_height="250dp"
                 android:gravity="bottom"
 
@@ -73,6 +73,15 @@
                     android:padding="5dp"
                     android:layout_alignBottom="@+id/main_view"
                     android:src="@drawable/ic_close" />
+                <EditText
+                    android:id="@+id/search_et"
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    >
+                    <requestFocus/>
+                </EditText>
 
 
             </LinearLayout>
@@ -91,15 +100,21 @@
                 android:layout_height="match_parent"
 
                 >
-                <TextView
-                    android:id="@+id/tv"
+                <LinearLayout
+                    android:id="@+id/tv_wrapper"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="bottom"
-                    android:scrollbars="vertical"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:descendantFocusability="blocksDescendants"
+                    >
+                    <TextView
+                        android:id="@+id/tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:focusableInTouchMode="true"
+                        />
+                </LinearLayout>
 
-
-                    android:text="aaaaaaaaa\nbbbbbb"/>
             </ScrollView>
 
             <!--<WebView-->
