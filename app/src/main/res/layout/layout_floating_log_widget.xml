@@ -18,6 +18,7 @@
             android:visibility="visible"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:alpha="0.6"
 
             android:background="@drawable/round_background"
             >
@@ -46,8 +47,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="1dp"
-            android:background="@drawable/card_background"
-
             >
 
 
@@ -59,45 +58,68 @@
 
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:background="@color/colorPrimaryDark"
-                android:orientation="horizontal">
-                <Button
+                android:background="#403EC8C8"
+                android:orientation="horizontal"
+                android:weightSum="1">
+                <ImageButton
                     android:id="@+id/load_btn"
                     android:layout_width="40dp"
-                    android:layout_height="40dp" />
+                    android:layout_height="40dp"
+                    android:padding="5dp"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:layout_weight="0.02"
+                    android:background="#00000000"
+
+
+                    />
 
                 <ImageView
                     android:id="@+id/close_button_at_drag"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:padding="5dp"
+                    android:padding="8dp"
+                    android:layout_weight="0.02"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
                     android:layout_alignBottom="@+id/main_view"
                     android:src="@drawable/ic_close" />
                 <EditText
                     android:id="@+id/search_et"
-                    android:layout_width="80dp"
+                    android:layout_width="60dp"
                     android:layout_height="40dp"
+                    android:layout_weight="0.3"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     >
                     <requestFocus/>
                 </EditText>
+                <Spinner
+                    android:id="@+id/priority_spinner"
+                    android:layout_width="60dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="0.2"
+                    android:spinnerMode="dropdown"/>
 
 
             </LinearLayout>
-            <View
+            <ImageView
                 android:id="@+id/scale_zone"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:padding="3dp"
                 android:layout_gravity="right"
+                android:src="@drawable/resize"
+                android:background="#403EC8C8"
 
-                android:background="@color/colorPrimary"></View>
+                ></ImageView>
 
 
             <ScrollView
                 android:id="@+id/scroll_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#000000"
 
                 >
                 <LinearLayout

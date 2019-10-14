@@ -17,13 +17,14 @@ public class ZingTVHtmlParser extends BaseHtmlParser {
         String priority = "";
         String textColor;
         for (int i = 0; i < listPtag.length; i++){
-            newP = "<p>";
+            newP = "<p ";
 
             Pattern priorityPattern = Pattern.compile("(priority=\")([0-9])(\")");
             Matcher matcher = priorityPattern.matcher(listPtag[i]);
             if (matcher.find()){
                 priority = matcher.group(2);
             }
+            newP += "priority=\""+priority+"\">";
             switch (Integer.parseInt(priority)){
                 case Log.ERROR:
                     textColor = "#E74C3C";
