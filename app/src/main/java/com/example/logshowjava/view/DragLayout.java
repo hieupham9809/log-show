@@ -12,9 +12,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.webkit.WebChromeClient;
+
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -157,7 +155,10 @@ public class DragLayout extends RelativeLayout {
     }
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+
+
         if (isViewHit(scaleZone, (int)ev.getX(), (int)ev.getY())) {
+
             isScaling = true;
             if (scrollView.getScrollY() != 0) {
                 currentScroll = scrollView.getScrollY();
@@ -187,31 +188,27 @@ public class DragLayout extends RelativeLayout {
                 y_previous = ev.getRawY();
             }
             if (ev.getAction() == MotionEvent.ACTION_MOVE){
+
                 if (listener != null){
                     listener.OnScale((int)(ev.getRawX() - x_previous), (int)(ev.getRawY() - y_previous));
+
                 }
                 x_previous = ev.getRawX();
                 y_previous = ev.getRawY();
             }
             mDragHelper.shouldInterceptTouchEvent(ev);
 
+
             dx = (int)mDragHelper.getdX(ev);
             dy = (int)mDragHelper.getdY(ev);
             x = (int)mDragHelper.getX(ev);
             y = (int)mDragHelper.getY(ev);
-//            if (listener != null){
-//                listener.OnScale(x, y);
-//            }
+
             requestLayout();
-
-
-//            Log.d("ZINGLOGSHOW", "req dx " + dx);
-//            Log.d("ZINGLOGSHOW", "req dy " + dy);
 
             return true;
         }
 
-//        mDragHelper.processTouchEvent(ev);
 
         boolean isHit = isViewHit(scrollView, (int) ev.getX(), (int)ev.getY());
 
@@ -222,6 +219,7 @@ public class DragLayout extends RelativeLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+//            Log.d("ZINGLOGSHOW","onIntercept called");
 
         final int action = ev.getAction();
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
@@ -230,7 +228,6 @@ public class DragLayout extends RelativeLayout {
         }
 
         if (isViewHit(scaleZone, (int)ev.getX(), (int)ev.getY())) {
-
             tvWrapper.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         }else {
@@ -314,18 +311,6 @@ public class DragLayout extends RelativeLayout {
         );
     }
 
-    public int getWebViewWidth(){
-        return webView.getWidth();
-    }
-    public void setMainLayout(int left, int top){
-        mainView.layout(
-                left,
-                top,
-                left + 300,
-                top + 100
-        );
-        requestLayout();
-    }
     public interface ScaleWindowListener {
         void OnScale(int dx, int dy);
     }
